@@ -68,27 +68,21 @@ class DribbleEnv(gym.Env):
         [res, dist] = vrep.simxGetObjectPosition(self.clientID, self.ball,-1,vrep.simx_opmode_buffer)
         if dist[1] > self.threshold:
             self.done = True
-            #print(dist[1])
         else:
             self.done = False
-    
-        reward = 1 + np.exp(-error*error/0.004)
-        if torque > 0.02:
-            reward -= 25*(torque - 0.02)
-        
-        #if torque > 0.02:
-        #    reward = 0.02 - torque
-        #else:
-        #    reward = 0.0
+        # reward = float(2*np.exp(-(torque[0]-0.03)*(torque[0]-0.03)/0.0005))
+        # if torque > 0.02:
+        #     reward -= float(20.0*(torque - 0.02))
+
         if self.done == True:
             reward -= 100.0
             
-        if self.t > 0.3:
+        if self.t > 0.5:
             self.done = True
         #update
         self.t = self.t + self.dt
         #print(self.t, torque)
-        return [error, torque], reward, self.done, [torque, error, dist]
+        return [error, torque], reward, self.done, [torque, currentAngle, dist[1]]
         
     def reset(self):
         self.t = 0.0
